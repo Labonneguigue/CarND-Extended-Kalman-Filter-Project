@@ -9,27 +9,36 @@ using namespace std;
 
 class Tools {
 public:
-  /**
-  * Constructor.
-  */
-  Tools();
-
-  /**
-  * Destructor.
-  */
-  virtual ~Tools();
-
-  /**
-  * A helper method to calculate RMSE.
-  */
-  VectorXd CalculateRMSE(const vector<VectorXd> &estimations,
-                         const vector<VectorXd> &ground_truth);
-
-  /**
-  * A helper method to calculate Jacobians.
-  */
-  MatrixXd CalculateJacobian(const VectorXd& x_state);
-
+    /**
+     * Constructor.
+     */
+    Tools(int size);
+    
+    /**
+     * Destructor.
+     */
+    virtual ~Tools();
+    
+    /**
+     * A helper method to calculate RMSE.
+     */
+    VectorXd CalculateRMSE(const vector<VectorXd> &estimations,
+                           const vector<VectorXd> &ground_truth);
+    /**
+     * Reset the counter and Vector keeping the data
+     */
+    void ResetRMSE();
+    
+    /**
+     * A helper method to calculate Jacobians.
+     */
+    static MatrixXd CalculateJacobian(const VectorXd& x_state);
+    
+private:
+    
+    Eigen::VectorXd mOverallSquaredSum;
+    int counter;
+    
 };
 
 #endif /* TOOLS_H_ */
