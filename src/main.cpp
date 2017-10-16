@@ -111,7 +111,7 @@ int main()
                     //Push the current estimated x,y positon from the Kalman filter's state vector
                     
                     VectorXd estimate(4);
-                    Eigen::VectorXd stateVectorX = fusionEKF.ekf_.GetStateVector();
+                    Eigen::VectorXd stateVectorX = fusionEKF.GetExtendedKalmanFilter().GetStateVector();
                     
                     double p_x = stateVectorX(0);
                     double p_y = stateVectorX(1);

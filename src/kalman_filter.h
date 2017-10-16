@@ -35,12 +35,16 @@ public:
     /**
      * Updates the state by using standard Kalman Filter equations
      * @param z The measurement at k+1
+     * @param H The measurement matrix
+     * @param R The measurement covariance matrix
      */
     void Update(const Eigen::VectorXd &z, Eigen::MatrixXd H, Eigen::MatrixXd R);
     
     /**
      * Updates the state by using Extended Kalman Filter equations
      * @param z The measurement at k+1
+     * @param H The measurement matrix
+     * @param R The measurement covariance matrix
      */
     void UpdateEKF(const Eigen::VectorXd &z, Eigen::MatrixXd H, Eigen::MatrixXd R);
     
@@ -51,7 +55,8 @@ public:
     void CommonUpdate(const Eigen::VectorXd &y);
     
     /**
-     * Ensure that the angle is within the ]-PI;PI] range
+     * Ensure that an is within the ]-PI;PI] range
+     * @param[in|out] angle The angle to normalize
      */
     void NormalizeAngle(double &angle);
     

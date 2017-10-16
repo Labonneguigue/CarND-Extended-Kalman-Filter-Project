@@ -134,7 +134,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;	//dt - expressed in seconds
     previous_timestamp_ = measurement_pack.timestamp_;
     
-    ekf_.Predict(dt, noise_ax, noise_ay);
+    ekf_.Predict(dt, noise_ax_, noise_ay_);
     
     /*****************************************************************************
      *  Update
@@ -158,4 +158,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // print the output
     cout << "x_ = " << ekf_.GetStateVector() << endl;
     cout << "P_ = " << ekf_.GetCovarianceMatrix() << endl;
+}
+
+KalmanFilter FusionEKF::GetExtendedKalmanFilter(){
+    return ekf_;
 }

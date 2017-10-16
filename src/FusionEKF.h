@@ -25,11 +25,10 @@ public:
      * Run the whole flow of the Kalman Filter from here.
      */
     void ProcessMeasurement(const MeasurementPackage &measurement_pack);
-    
     /**
-     * Kalman Filter update and prediction math lives in here.
+     * Return the instance of the Ext. Kalman Filter
      */
-    KalmanFilter ekf_;
+    KalmanFilter GetExtendedKalmanFilter();
     
 private:
     // check whether the tracking toolbox was initialized or not (first measurement)
@@ -43,8 +42,10 @@ private:
     Eigen::MatrixXd H_laser_;
     Eigen::MatrixXd Hj_;
     
-    float noise_ax = 9;
-    float noise_ay = 9;
+    float noise_ax_ = 9;
+    float noise_ay_ = 9;
+    
+    KalmanFilter ekf_; ///< Kalman Filter update and prediction math lives in here.
 };
 
 #endif /* FusionEKF_H_ */
