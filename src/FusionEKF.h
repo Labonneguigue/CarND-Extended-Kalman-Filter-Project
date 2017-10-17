@@ -42,8 +42,8 @@ private:
     Eigen::MatrixXd H_laser_;
     Eigen::MatrixXd Hj_;
     
-    float noise_ax_ = 9;
-    float noise_ay_ = 9;
+    float noise_ax_ = 9.0F;
+    float noise_ay_ = 9.0F;
     
     KalmanFilter ekf_; ///< Kalman Filter update and prediction math lives in here.
 };

@@ -5,12 +5,14 @@ using Eigen::VectorXd;
 using Eigen::MatrixXd;
 using std::vector;
 
+//#define _MY_RMSE_ 0
 #define DBZ 0.0001    // Number below which it is considered 0
 
 Tools::Tools(int size)
 : mOverallSquaredSum(Eigen::VectorXd(size))
 , counter(0)
 {
+    mOverallSquaredSum << 0, 0, 0, 0;
     
     //@TODO: Move to Unit Test !
     
@@ -45,42 +47,70 @@ Tools::~Tools() {}
 
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
+#ifdef _MY_RMSE_
     VectorXd rmse(4);
-    rmse << 0,0,0,0;
     
-    if ( ( estimations.size() > 0 ) && ( ground_truth.size() > 0 ) &&
-         ( estimations.size() == ground_truth.size() ) )
+    int vectorSize = estimations.size();
+    
+    if ( ( vectorSize == 0 ) ||
+         ( vectorSize != ground_truth.size() ) ||
+         ( estimations[vectorSize - 1].size() != ground_truth[vectorSize - 1].size() ) )
     {
-        assert(mOverallSquaredSum.size() == estimations[0].size());
-        
-        for ( ; counter < estimations.size() ; counter++){
-            // sqrt ( sum ( ( gt(i) - est(i) )^2 ) / n )
-            if ( ( estimations[counter].size() != ground_truth[counter].size() ) ||
-                ( estimations[counter].size() != mOverallSquaredSum.size() ) ){
-                cout << "\nProblem ! \n\n";
-                return rmse;
-            }
-            else {
-                Eigen::VectorXd difference = estimations[counter] - ground_truth[counter];
-                difference = pow( difference.array(), 2);
-                // I keep the overall sum of squared differences
-                mOverallSquaredSum += difference;
-            }
-        }
-        // I compute the result once the latest estimations has been added to the rolling sum
-        rmse = mOverallSquaredSum / counter;
-        rmse = rmse.array().sqrt();
-        
+        std::cout << " ERROR \n";
+        rmse << 0,0,0,0;
         return rmse;
     }
     else
     {
+        Eigen::VectorXd difference(4);
+        difference = estimations[vectorSize -1] - ground_truth[vectorSize -1];
+        
+        difference = difference.array() * difference.array();
+        // I keep the overall sum of squared differences
+        mOverallSquaredSum += difference;
+        
+        // I compute the result once the latest estimations has been added to the rolling sum
+        rmse = mOverallSquaredSum / vectorSize;
+        rmse = rmse.array().sqrt();
+        
         return rmse;
     }
+#else
+    VectorXd rmse(4);
+    rmse << 0,0,0,0;
+    
+    // check the validity of the following inputs:
+    //  * the estimation vector size should not be zero
+    //  * the estimation vector size should equal ground truth vector size
+    if(estimations.size() != ground_truth.size()
+       || estimations.size() == 0){
+        cout << "Invalid estimation or ground_truth data" << endl;
+        return rmse;
+    }
+    
+    //accumulate squared residuals
+    for(unsigned int i=0; i < estimations.size(); ++i){
+        
+        VectorXd residual = estimations[i] - ground_truth[i];
+        
+        //coefficient-wise multiplication
+        residual = residual.array()*residual.array();
+        rmse += residual;
+    }
+    
+    //calculate the mean
+    rmse = rmse/estimations.size();
+    
+    //calculate the squared root
+    rmse = rmse.array().sqrt();
+    
+    //return the result
+    return rmse;
+#endif
 }
 
- MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
-
+MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
+    
     Eigen::MatrixXd Hj(3,4);
     
     // retrieve state parameters
@@ -109,8 +139,8 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     
     // Computation of Hj, the Jacobian matrix
     Hj <<  ( px / v2 ), ( py / v2 ), 0, 0,
-           (-py / v1 ), ( px / v1 ), 0, 0,
-           H_2_0 , H_2_1, ( px / v2 ), ( py / v2 );
+    (-py / v1 ), ( px / v1 ), 0, 0,
+    H_2_0 , H_2_1, ( px / v2 ), ( py / v2 );
     
     return Hj;
 }
